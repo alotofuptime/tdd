@@ -1,3 +1,5 @@
+from typing import Optional, Any, Generator
+
 class LinkedList:
 
     class ListNode:
@@ -5,65 +7,75 @@ class LinkedList:
             self.__data = data
             self.__next = None
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f"Node({self.__data})"
 
-        # what if user wanted to set/update data of node?
         @property
-        def data(self):
+        def data(self) -> Any:
             return self.__data
 
+        #TODO handle set data as node obj edge case. do we want that to be allowed?
+        @data.setter
+        def data(self, data: Any) -> None:
+            self.__data = data
+
         @property
-        def next(self):
+        def next(self) -> Any:
             return self.__next
 
         @next.setter
         def next(self, data) -> None:
-            self.__next = LinkedList.new_node(data)
+            self.__next = LinkedList.new_node(data) if (data is not None) else None
 
     def __init__(self, head=None):
-        self.__head = self.new_node(head) if head is not None else head
+        self.__head = self.new_node(head) if (head is not None) else head
         self.__tail = head
         self.__size = 0 if head is None else 1
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return " -> ".join([str(node.data) for node in self])
 
-    def __iter__(self):
+    def __contains__(self, key: Any) -> bool:
+        return self.search(key)
+
+    def __iter__(self) -> Generator:
         curr = self.__head
         while curr:
             yield curr
             curr = curr.next
 
+    def __getitem__(self, idx: int) -> ListNode:
+        return self.get_nth(idx)
+
     @property
-    def head(self):
+    def head(self) -> ListNode:
         return self.__head
 
     @head.setter
-    def head(self, data):
+    def head(self, data: Any) -> None:
         return self.prepend(data)
 
     @property
-    def tail(self):
+    def tail(self) -> ListNode:
         return self.__tail
 
     @tail.setter
-    def tail(self, data: ListNode) -> None:
+    def tail(self, data: Any) -> None:
         return self.append(data)
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self.__size
 
     @classmethod
-    def new_node(cls, data):
+    def new_node(cls, data: Any) -> Optional[ListNode]:
         new_node = data if isinstance(data, cls.ListNode) else cls.ListNode(data)
         return new_node
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return True if not self.__head else False
 
-    def append(self, data):
+    def append(self, data: Any) -> None:
         new_node = self.new_node(data)
         if self.is_empty():
             self.__tail = self.__head = new_node
@@ -76,7 +88,7 @@ class LinkedList:
         curr.next = self.__tail = new_node
         self.__size += 1
 
-    def prepend(self, data):
+    def prepend(self, data: Any) -> None:
         new_node = self.new_node(data)
         if self.is_empty():
             self.__head = self.__tail = new_node
@@ -86,3 +98,88 @@ class LinkedList:
         new_node.next = self.__head
         self.__head = new_node
         self.__size += 1
+
+    def insert_nth(self, data: Any, idx: int) -> None:
+        if idx > self.__size:
+            return False
+        if idx == self.__size:
+            return self.append(data)
+        elif idx == 0:
+            return self.prepend(data)
+
+        new_node, prev = self.new_node(data), None
+        curr, pos = self.__head, 0
+        while pos != idx:
+            prev = curr
+            curr = curr.next
+            pos += 1
+        prev.next, new_node.next = new_node, curr
+        self.__size += 1
+
+    def delete_head(self) -> None:
+        if self.is_empty():
+            return
+        self.__head = self.head.next
+        self.__size -= 1
+
+    def delete_tail(self) -> None:
+        if self.is_empty():
+            return
+        if self.__size is self.__head:
+            return self.delete_head()
+
+        curr, prev = self.__head, None
+        while (curr and curr != self.__tail):
+            prev, curr = curr, curr.next
+        self.__tail, prev.next = prev, None
+        self.__size -=1
+
+    def delete_nth(self, idx: int) -> None:
+        if idx >= self.size:
+            raise IndexError("Index out of range")
+        if idx == 0 :
+            return self.delete_head()
+        if idx == (self.size - 1):
+            return self.delete_tail()
+
+        curr, prev = self.__head, None
+        pos = 0
+        while (curr and pos != idx):
+            prev, curr = curr, curr.next
+            pos += 1
+        prev.next, curr = curr.next, None
+        self.__size -= 1
+
+    def get_nth(self, idx: int) -> Optional[ListNode]:
+        if idx >= self.__size:
+            raise IndexError
+
+        curr, pos = self.__head, 0
+        while pos != idx:
+            curr = curr.next
+            pos += 1
+        return curr
+
+    def search(self, key: Any) -> bool:
+        if self.is_empty():
+            return False
+
+        curr = self.__head
+        while curr:
+            if curr.data == key:
+                return True
+            curr = curr.next
+        return False
+
+    def reverse(self) -> None:
+        if self.is_empty():
+            return
+
+        curr, prev = self.__head, None
+        while curr:
+            nxt = curr.next
+            curr.next = prev
+            prev = curr
+            curr = nxt
+        self.__head = prev
+
