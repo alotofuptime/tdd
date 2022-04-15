@@ -1,4 +1,4 @@
-from typing import Optional, Any, Generator
+from typing import Optional, Any, Generator, Iterable
 
 class LinkedList:
 
@@ -47,6 +47,9 @@ class LinkedList:
     def __getitem__(self, idx: int) -> ListNode:
         return self.get_nth(idx)
 
+    def __setitem__(self, idx: int, data: Any) -> None:
+        return self.update(idx, data)
+
     @property
     def head(self) -> ListNode:
         return self.__head
@@ -88,6 +91,11 @@ class LinkedList:
         curr.next = self.__tail = new_node
         self.__size += 1
 
+    #TODO handle dict edge case
+    def append_all(self, sequence: Iterable) -> None:
+        for item in sequence:
+            self.append(item)
+
     def prepend(self, data: Any) -> None:
         new_node = self.new_node(data)
         if self.is_empty():
@@ -100,12 +108,15 @@ class LinkedList:
         self.__size += 1
 
     def insert_nth(self, data: Any, idx: int) -> None:
-        if idx > self.__size:
-            return False
-        if idx == self.__size:
-            return self.append(data)
-        elif idx == 0:
-            return self.prepend(data)
+        try:
+            if idx > self.__size:
+                return False
+            if idx == self.__size:
+                return self.append(data)
+            elif idx == 0:
+                return self.prepend(data)
+        except TypeError:
+            raise TypeError("idx must be of type int")
 
         new_node, prev = self.new_node(data), None
         curr, pos = self.__head, 0
@@ -182,4 +193,18 @@ class LinkedList:
             prev = curr
             curr = nxt
         self.__head = prev
+
+    def update(self, idx: int, data: Any) -> None:
+        if not isinstance(idx, int):
+            raise TypeError("idx must be of type int")
+        if idx > (self.size - 1):
+            raise IndexError("Index out of range")
+        if self.is_empty():
+            return
+
+        curr, pos = self.__head, 0
+        while pos != idx:
+            curr = curr.next
+            pos += 1
+        curr.data = data
 
