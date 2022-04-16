@@ -93,6 +93,10 @@ class LinkedList:
 
     #TODO handle dict edge case
     def append_all(self, sequence: Iterable) -> None:
+        if isinstance(sequence, dict):
+            raise TypeError(
+                "Sequence of type dict not supported. Use .keys() or .values() instead"
+            )
         for item in sequence:
             self.append(item)
 

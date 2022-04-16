@@ -8,12 +8,22 @@ class TestSinglyLinkedList:
         llist = LinkedList()
         assert (llist.is_empty() is True) and (not llist.head and llist.tail is llist.head)
 
-    def test_append_all(self):
+    @pytest.mark.parametrize("nodes",
+                             [
+                                 [9, 2, 11, 4],
+                                 {"first":1, 2:2, 3:3},
+                                 ("this", "is", "a", "tuple")
+                             ]
+    )
+    def test_append_all(self, nodes):
         llist = LinkedList()
-        arr = [9, 2, 11, 20]
-        llist.append_all(arr)
-        assert str(llist) == "9 -> 2 -> 11 -> 20"
-        assert llist.size == 4
+        if isinstance(nodes, dict):
+            with pytest.raises(TypeError) as err:
+                assert llist.append_all(nodes) is err
+        else:
+            llist.append_all(nodes)
+            assert str(llist) == " -> ".join([str(node) for node in nodes])
+            assert llist.size == len(nodes)
 
     @pytest.mark.insertion()
     def test_append(self):
@@ -116,10 +126,13 @@ class TestSinglyLinkedList:
             llist.get_nth(7)
 
     @pytest.mark.parametrize("nodes, target",
-                             [([1, 2, 3, 4, 5], 0),
-                              ([6, 3, 21, 39, 4, 40], 21),
-                              ([7, 17, 28, 34, 100, 307], 100),
-                              ([5, 10, 9, 47, 8], 11)])
+                             [
+                                 ([1, 2, 3, 4, 5], 0),
+                                 ([6, 3, 21, 39, 4, 40], 21),
+                                 ([7, 17, 28, 34, 100, 307], 100),
+                                 ([5, 10, 9, 47, 8], 11)
+                             ]
+    )
     def test_search(self, nodes, target):
         llist = LinkedList()
         llist.append_all(nodes)
@@ -128,10 +141,13 @@ class TestSinglyLinkedList:
         assert llist.search(target) == (target in nodes)
 
     @pytest.mark.parametrize("sequence",
-                             [[8, 9, 10],
-                              [7, 189, 7, 39, 20],
-                              ["j", "aj", "yah"],
-                              []])
+                             [
+                                 [8, 9, 10],
+                                 [7, 189, 7, 39, 20],
+                                 ["j", "aj", "yah"],
+                                 []
+                             ]
+    )
     def test_reverse(self, sequence):
         llist = LinkedList()
         llist.append_all(sequence)
@@ -142,12 +158,20 @@ class TestSinglyLinkedList:
         assert str(llist) == expected_result
 
 
-    def test_update(self):
-        llist = LinkedList(9)
-        llist.append(6)
-        llist.append(2)
-        llist.append(5)
-        llist.append(7)
-        llist.update(3, 10)
-        llist[1] = 5
-        assert str(llist) == "9 -> 5 -> 2 -> 10 -> 7"
+    @pytest.mark.parametrize("nodes, idx, data",
+                             [
+                                 ([1, 2, 3, 4, 5], 0, 4),
+                                 ([6, 7, 8, 9, 10], 1, 3),
+                                 (["j", "o", "s", "h"], "0", "J")
+                             ]
+    )
+    def test_update(self, nodes, idx, data):
+        llist = LinkedList()
+        llist.append_all(nodes)
+        if not isinstance(idx, int):
+            with pytest.raises(TypeError) as err:
+                assert llist.update(idx, data) is err
+        else:
+            llist.update(idx,data)
+            assert llist[idx].data == data
+
