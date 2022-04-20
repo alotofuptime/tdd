@@ -50,6 +50,9 @@ class LinkedList:
     def __setitem__(self, idx: int, data: Any) -> None:
         return self.update(idx, data)
 
+    def __len__(self):
+        return self.__size
+
     @property
     def head(self) -> ListNode:
         return self.__head
@@ -91,7 +94,6 @@ class LinkedList:
         curr.next = self.__tail = new_node
         self.__size += 1
 
-    #TODO handle dict edge case
     def append_all(self, sequence: Iterable) -> None:
         if isinstance(sequence, dict):
             raise TypeError(
@@ -113,8 +115,12 @@ class LinkedList:
 
     def insert_nth(self, data: Any, idx: int) -> None:
         try:
-            if idx > self.__size:
-                return False
+            self[idx]
+        except IndexError:
+            raise IndexError("Index out of range")
+
+        try:
+            # TODO change this. if idx is == size then insert before the tail
             if idx == self.__size:
                 return self.append(data)
             elif idx == 0:
@@ -128,7 +134,7 @@ class LinkedList:
             prev = curr
             curr = curr.next
             pos += 1
-        prev.next, new_node.next = new_node, curr
+        prev.next, new_node.next = (new_node, curr)
         self.__size += 1
 
     def delete_head(self) -> None:
@@ -140,16 +146,20 @@ class LinkedList:
     def delete_tail(self) -> None:
         if self.is_empty():
             return
-        if self.__size is self.__head:
+        if self.__tail is self.__head:
             return self.delete_head()
 
-        curr, prev = self.__head, None
+        curr, prev = (self.__head, None)
         while (curr and curr != self.__tail):
-            prev, curr = curr, curr.next
-        self.__tail, prev.next = prev, None
+            prev, curr = (curr, curr.next)
+        self.__tail, prev.next = (prev, None)
         self.__size -=1
 
     def delete_nth(self, idx: int) -> None:
+        try:
+            self[idx]
+        except TypeError:
+            raise TypeError("idx must be of type int")
         if idx >= self.size:
             raise IndexError("Index out of range")
         if idx == 0 :
@@ -166,8 +176,10 @@ class LinkedList:
         self.__size -= 1
 
     def get_nth(self, idx: int) -> Optional[ListNode]:
+        if not isinstance(idx, int):
+            raise TypeError("idx must be of type int")
         if idx >= self.__size:
-            raise IndexError
+            raise IndexError("Index out of range")
 
         curr, pos = self.__head, 0
         while pos != idx:
