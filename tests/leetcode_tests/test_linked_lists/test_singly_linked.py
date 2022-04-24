@@ -8,22 +8,31 @@ class TestSinglyLinkedList:
         llist = LinkedList()
         assert (llist.is_empty() is True) and (not llist.head and llist.tail is llist.head)
 
+    @pytest.mark.insertion()
     @pytest.mark.parametrize("nodes",
                              [
-                                 [9, 2, 11, 4],
-                                 {"first":1, 2:2, 3:3},
-                                 ("this", "is", "a", "tuple")
+                                 None,
+                                 100
                              ]
     )
-    def test_append_all(self, nodes):
+    def test_append_all_invalid_input(self, nodes):
         llist = LinkedList()
-        if isinstance(nodes, dict):
-            with pytest.raises(TypeError) as err:
-                assert llist.append_all(nodes) is err
-        else:
-            llist.append_all(nodes)
-            assert str(llist) == " -> ".join([str(node) for node in nodes])
-            assert llist.size == len(nodes)
+        with pytest.raises(TypeError) as err:
+            assert llist.append_all(nodes) is err
+
+    @pytest.mark.insertion()
+    @pytest.mark.parametrize("nodes",
+                             [
+                                 {"key": "val", "night": "day"},
+                                 (1, 2, 3, 4, 5, 6),
+                                 [7, "list", "array", [2, 4]],
+                                 {1, 8, 29, 0.9}
+                             ]
+    )
+    def test_append_all_valid_input(self, nodes):
+        llist = LinkedList()
+        llist.append_all(nodes)
+        assert str(llist) == " -> ".join([str(node) for node in nodes])
 
     @pytest.mark.insertion()
     def test_append(self):
@@ -43,6 +52,7 @@ class TestSinglyLinkedList:
         assert (llist.tail.data) == 9 and (isinstance(llist.tail, llist.ListNode))
         assert llist.size == 2
 
+    @pytest.mark.insertion()
     @pytest.mark.parametrize("nodes, data, idx",
                              [
                                  ([1, 2, 3, 4, 5], 4, 6),
@@ -53,14 +63,28 @@ class TestSinglyLinkedList:
     def test_insert_nth_invalid_idx(self, nodes, data, idx):
         llist = LinkedList()
         llist.append_all(nodes)
-        if not isinstance(idx, int):
-            with pytest.raises(TypeError) as err:
-                assert llist.insert_nth(data, idx) is err
-        if isinstance(idx, int) and (idx > llist.size):
-            with pytest.raises(IndexError) as err:
-                assert llist.insert_nth(data, idx) is err
+        with pytest.raises((TypeError, IndexError)) as err:
+            assert llist.insert_nth(data, idx) is err
 
-    #TODO test insert_nth for valid index
+    @pytest.mark.insertion()
+    @pytest.mark.parametrize("nodes, data, idx",
+                             [
+                                 (["this", "is", "a", "test"], "test", 1),
+                                 (["this", "is", "a", "test"], "not", 2),
+                                 (["this", "is", "a", "test"], "wait", 0),
+                                 (["this", "is", "a", "test"], "TEST", -1),
+                                 (["this", "is", "a", "test"], "man", 3),
+                             ]
+
+    )
+    def test_insert_nth_valid_idx(self, nodes, data, idx):
+        llist = LinkedList()
+        llist.append_all(nodes)
+        llist.insert_nth(data, idx)
+        assert llist[idx].data is data
+        assert llist.size == (len(nodes) + 1)
+
+    @pytest.mark.insertion()
     @pytest.mark.parametrize("nodes, data, idx",
                              [
                                  ([1, 2, 3, 4, 5], 4.5, 4),
@@ -81,26 +105,43 @@ class TestSinglyLinkedList:
         assert llist.head.data == 12
 
     @pytest.mark.deletion()
-    def test_delete_head(self):
-        llist = LinkedList(9)
-        llist.append(10)
-        llist.append(7)
-        llist.append(5)
+    @pytest.mark.parametrize("nodes",
+                             [
+                                 [2, 4, 5, 8, 10],
+                                 [4, 5, 8, 10],
+                                 [5, 8, 10],
+                                 [8, 10],
+                                 [10],
+                             ]
+    )
+    def test_delete_head(self, nodes):
+        llist = LinkedList()
+        llist.append_all(nodes)
         llist.delete_head()
-        assert llist.head.data == 10
-        assert llist.size == 3
-        assert str(llist) == "10 -> 7 -> 5"
+        assert len(llist) == (len(nodes) - 1)
+        if (len(nodes) > 1):
+            assert llist.head.data == nodes[1]
+        else:
+            assert llist.head is None
 
     @pytest.mark.deletion()
-    def test_delete_tail(self):
-        llist = LinkedList(9)
-        llist.append(10)
-        llist.append(5)
-        llist.append(8)
-        llist.append(4)
+    @pytest.mark.parametrize("nodes",
+                             [
+                                 ["random", "nodes", "to", "test"],
+                                 ["random", "nodes", "to"],
+                                 ["random", "nodes"],
+                                 ["random"]
+                             ]
+    )
+    def test_delete_tail(self, nodes):
+        llist = LinkedList()
+        llist.append_all(nodes)
         llist.delete_tail()
-        assert (llist.tail.data == 8) and (llist.size == 4)
-        assert str(llist) == "9 -> 10 -> 5 -> 8"
+        if (len(nodes) > 1):
+            assert llist.tail.data == nodes[-2]
+        else:
+            assert llist.tail is None
+        assert len(llist) == (len(nodes) - 1)
 
     @pytest.mark.deletion()
     @pytest.mark.parametrize("nodes, idx",
@@ -112,26 +153,38 @@ class TestSinglyLinkedList:
     def test_delete_nth_invalid_idx(self, nodes, idx):
         llist = LinkedList()
         llist.append_all(nodes)
-        if not isinstance(idx, int):
-            with pytest.raises(TypeError) as err:
-                assert llist.delete_nth(idx) is err
-        if isinstance(idx, int) and (idx > len(llist)):
-            with pytest.raises(IndexError) as err:
-               assert llist.delete_nth(idx) is err
+        with pytest.raises((TypeError, IndexError)) as err:
+            assert llist.delete_nth(idx) is err
 
-    def test_get_nth(self):
-        llist = LinkedList(2)
-        llist.prepend(6)
-        llist.prepend(7)
-        llist.append(8)
-        llist.append(3)
-        llist.append(4)
-        assert llist.size == 6
-        assert str(llist) == "7 -> 6 -> 2 -> 8 -> 3 -> 4"
-        fourth_node = llist.get_nth(3)
-        assert (fourth_node.data == 8) and (llist[3] == fourth_node)
-        with pytest.raises(IndexError):
-            llist.get_nth(7)
+    @pytest.mark.deletion()
+    @pytest.mark.parametrize("nodes, idx",
+                             [
+                                 (["copy", "paste", "delete", "undo"], 0),
+                                 (["copy", "paste", "delete", "undo"], 1),
+                                 (["copy", "paste", "delete", "undo"], 2),
+                                 (["copy", "paste", "delete", "undo"], 3),
+                             ]
+    )
+    def test_delete_nth_valid_idx(self, nodes, idx):
+        llist = LinkedList()
+        llist.append_all(nodes)
+        llist.delete_nth(idx)
+        assert nodes[idx] not in llist
+        assert len(llist) == (len(nodes) - 1)
+
+    @pytest.mark.parametrize("nodes, idx",
+                             [
+                                 ([(1, 2), (3, 4), (5, 6), (7, 8)], "0"),
+                                 ([(1, 2), (3, 4), (5, 6), (7, 8)], "1"),
+                                 ([(1, 2), (3, 4), (5, 6), (7, 8)], 5),
+                                 ([(1, 2), (3, 4), (5, 6), (7, 8)], 7),
+                             ]
+    )
+    def test_get_nth_invalid_idx(self, nodes, idx):
+        llist = LinkedList()
+        llist.append_all(nodes)
+        with pytest.raises((TypeError, IndexError)) as err:
+            assert llist.get_nth(idx) is err
 
     @pytest.mark.parametrize("nodes, target",
                              [
@@ -168,18 +221,28 @@ class TestSinglyLinkedList:
 
     @pytest.mark.parametrize("nodes, idx, data",
                              [
-                                 ([1, 2, 3, 4, 5], 0, 4),
-                                 ([6, 7, 8, 9, 10], 1, 3),
-                                 (["j", "o", "s", "h"], "0", "J")
+                                 (["j", "o", "s", "h"], "0", "J"),
+                                 (["j", "o", "s", "h"], None, "J"),
                              ]
     )
-    def test_update(self, nodes, idx, data):
+    #TODO break this into valid and invlaid input tests
+    def test_update_invalid_idx(self, nodes, idx, data):
         llist = LinkedList()
         llist.append_all(nodes)
-        if not isinstance(idx, int):
-            with pytest.raises(TypeError) as err:
-                assert llist.update(idx, data) is err
-        else:
-            llist.update(idx,data)
-            assert llist[idx].data == data
+        with pytest.raises(TypeError) as err:
+            assert llist.update(idx, data) is err
 
+    @pytest.mark.parametrize("nodes, idx, data",
+                             [
+                                 (["j", "o", "s", "h"], 0, "J"),
+                                 (["j", "o", "s", "h"], -1, "H"),
+                                 (["j", "o", "s", "h"], 1, "O"),
+                                 (["j", "o", "s", "h"], 2, "S"),
+                                 (["j", "o", "s", "h"], 3, "H"),
+                             ]
+    )
+    def test_update_valid_idx(self, nodes, idx, data):
+        llist = LinkedList()
+        llist.append_all(nodes)
+        llist.update(idx, data)
+        assert llist[idx].data == data

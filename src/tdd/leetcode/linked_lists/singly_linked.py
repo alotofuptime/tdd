@@ -95,12 +95,11 @@ class LinkedList:
         self.__size += 1
 
     def append_all(self, sequence: Iterable) -> None:
-        if isinstance(sequence, dict):
-            raise TypeError(
-                "Sequence of type dict not supported. Use .keys() or .values() instead"
-            )
-        for item in sequence:
-            self.append(item)
+        try:
+            for item in sequence:
+                self.append(item)
+        except TypeError as err:
+            raise err("sequence must be iterable(e.g., list, tuple")
 
     def prepend(self, data: Any) -> None:
         new_node = self.new_node(data)
@@ -116,18 +115,18 @@ class LinkedList:
     def insert_nth(self, data: Any, idx: int) -> None:
         try:
             self[idx]
-        except IndexError:
-            raise IndexError("Index out of range")
+        except IndexError as err:
+            raise err("Index out of range")
+        except TypeError as err:
+            raise err("idx must be of type int")
 
-        try:
-            # TODO change this. if idx is == size then insert before the tail
-            if idx == self.__size:
-                return self.append(data)
-            elif idx == 0:
-                return self.prepend(data)
-        except TypeError:
-            raise TypeError("idx must be of type int")
+        if idx == 0:
+            return self.prepend(data)
 
+        # TODO handle -1 idx edge case
+        # [1, 2, 3, 4, 5]
+        # [-5, -4, -3, -2, -1]
+        # is -1 indexing worth the trouble for this specific method?
         new_node, prev = self.new_node(data), None
         curr, pos = self.__head, 0
         while pos != idx:
@@ -140,7 +139,10 @@ class LinkedList:
     def delete_head(self) -> None:
         if self.is_empty():
             return
-        self.__head = self.head.next
+        if self.__head.next:
+            self.__head = self.head.next
+        else:
+            self.__head, self.__tail = (None, None)
         self.__size -= 1
 
     def delete_tail(self) -> None:
@@ -153,7 +155,7 @@ class LinkedList:
         while (curr and curr != self.__tail):
             prev, curr = (curr, curr.next)
         self.__tail, prev.next = (prev, None)
-        self.__size -=1
+        self.__size -= 1
 
     def delete_nth(self, idx: int) -> None:
         try:
@@ -180,6 +182,8 @@ class LinkedList:
             raise TypeError("idx must be of type int")
         if idx >= self.__size:
             raise IndexError("Index out of range")
+        if idx == -1:
+            return self.__tail
 
         curr, pos = self.__head, 0
         while pos != idx:
@@ -211,11 +215,16 @@ class LinkedList:
         self.__head = prev
 
     def update(self, idx: int, data: Any) -> None:
-        if not isinstance(idx, int):
-            raise TypeError("idx must be of type int")
-        if idx > (self.size - 1):
-            raise IndexError("Index out of range")
+        try:
+            self[idx]
+        except TypeError as err:
+            raise err("idx must be of type int")
+        except IndexError as err:
+            raise err("Index out of range")
         if self.is_empty():
+            return
+        if idx == -1:
+            self.__tail.data = data
             return
 
         curr, pos = self.__head, 0
