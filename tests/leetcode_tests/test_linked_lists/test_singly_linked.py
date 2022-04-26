@@ -186,6 +186,20 @@ class TestSinglyLinkedList:
         with pytest.raises((TypeError, IndexError)) as err:
             assert llist.get_nth(idx) is err
 
+    @pytest.mark.parametrize("nodes, idx",
+                             [
+                                 ([1, 2, 3, 4, 5], -1),
+                                 ([1, 2, 3, 4, 5], -2),
+                                 ([1, 2, 3, 4, 5], -3),
+                                 ([1, 2, 3, 4, 5], -4),
+                                 ([1, 2, 3, 4, 5], -5),
+                             ]
+    )
+    def test_get_nth_valid_idx(self, nodes, idx):
+        llist = LinkedList()
+        llist.append_all(nodes)
+        assert llist[idx].data == nodes[len(nodes) - abs(idx)]
+
     @pytest.mark.parametrize("nodes, target",
                              [
                                  ([1, 2, 3, 4, 5], 0),
@@ -225,7 +239,6 @@ class TestSinglyLinkedList:
                                  (["j", "o", "s", "h"], None, "J"),
                              ]
     )
-    #TODO break this into valid and invlaid input tests
     def test_update_invalid_idx(self, nodes, idx, data):
         llist = LinkedList()
         llist.append_all(nodes)
