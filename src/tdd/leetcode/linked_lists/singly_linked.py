@@ -78,6 +78,12 @@ class LinkedList:
         new_node = data if isinstance(data, cls.ListNode) else cls.ListNode(data)
         return new_node
 
+    def __parse_idx(self, idx: int) -> int:
+        idx = (len(self) - abs(idx)) if idx < 0 else idx
+        if idx >= self.__size:
+            raise IndexError("Index out of range.")
+        return idx
+
     def is_empty(self) -> bool:
         return True if not self.__head else False
 
@@ -114,7 +120,7 @@ class LinkedList:
 
     def insert_nth(self, data: Any, idx: int) -> None:
         try:
-            self[idx]
+            idx = self.__parse_idx(idx)
         except IndexError as err:
             raise err("Index out of range")
         except TypeError as err:
@@ -123,13 +129,9 @@ class LinkedList:
         if idx == 0:
             return self.prepend(data)
 
-        # TODO handle -1 idx edge case
-        # [1, 2, 3, 4, 5]
-        # [-5, -4, -3, -2, -1]
-        # is -1 indexing worth the trouble for this specific method?
         new_node, prev = self.new_node(data), None
         curr, pos = self.__head, 0
-        while pos != idx:
+        while (curr and pos != idx):
             prev = curr
             curr = curr.next
             pos += 1
@@ -159,7 +161,7 @@ class LinkedList:
 
     def delete_nth(self, idx: int) -> None:
         try:
-            self[idx]
+            idx = self.__parse_idx(idx)
         except TypeError:
             raise TypeError("idx must be of type int")
         if idx >= self.size:
@@ -178,15 +180,16 @@ class LinkedList:
         self.__size -= 1
 
     def get_nth(self, idx: int) -> Optional[ListNode]:
-        if not isinstance(idx, int):
-            raise TypeError("idx must be of type int")
+        try:
+            idx = self.__parse_idx(idx)
+        except TypeError as err:
+            raise err("Index must be of type int")
+
         if idx >= self.__size:
             raise IndexError("Index out of range")
-        if idx == -1:
-            return self.__tail
 
         curr, pos = self.__head, 0
-        while pos != idx:
+        while (curr and pos != idx):
             curr = curr.next
             pos += 1
         return curr
@@ -216,7 +219,7 @@ class LinkedList:
 
     def update(self, idx: int, data: Any) -> None:
         try:
-            self[idx]
+            idx = self.__parse_idx(idx)
         except TypeError as err:
             raise err("idx must be of type int")
         except IndexError as err:
@@ -227,8 +230,8 @@ class LinkedList:
             self.__tail.data = data
             return
 
-        curr, pos = self.__head, 0
-        while pos != idx:
+        curr, pos = (self.__head, 0)
+        while (curr and pos != idx):
             curr = curr.next
             pos += 1
         curr.data = data

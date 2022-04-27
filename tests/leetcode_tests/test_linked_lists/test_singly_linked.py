@@ -72,8 +72,11 @@ class TestSinglyLinkedList:
                                  (["this", "is", "a", "test"], "test", 1),
                                  (["this", "is", "a", "test"], "not", 2),
                                  (["this", "is", "a", "test"], "wait", 0),
-                                 (["this", "is", "a", "test"], "TEST", -1),
                                  (["this", "is", "a", "test"], "man", 3),
+                                 (["this", "is", "a", "test"], "TEST", -1),
+                                 (["this", "is", "a", "test"], "A", -2),
+                                 (["this", "is", "a", "test"], "IS", -3),
+                                 (["this", "is", "a", "test"], "THIS", -4),
                              ]
 
     )
@@ -81,7 +84,10 @@ class TestSinglyLinkedList:
         llist = LinkedList()
         llist.append_all(nodes)
         llist.insert_nth(data, idx)
-        assert llist[idx].data is data
+        if idx >= 0:
+            assert llist[idx].data is data
+        else:
+            assert llist[idx - 1].data is data
         assert llist.size == (len(nodes) + 1)
 
     @pytest.mark.insertion()
@@ -156,6 +162,7 @@ class TestSinglyLinkedList:
         with pytest.raises((TypeError, IndexError)) as err:
             assert llist.delete_nth(idx) is err
 
+    #TODO test for negative index support
     @pytest.mark.deletion()
     @pytest.mark.parametrize("nodes, idx",
                              [
@@ -163,6 +170,10 @@ class TestSinglyLinkedList:
                                  (["copy", "paste", "delete", "undo"], 1),
                                  (["copy", "paste", "delete", "undo"], 2),
                                  (["copy", "paste", "delete", "undo"], 3),
+                                 (["copy", "paste", "delete", "undo"], -1),
+                                 (["copy", "paste", "delete", "undo"], -2),
+                                 (["copy", "paste", "delete", "undo"], -3),
+                                 (["copy", "paste", "delete", "undo"], -4),
                              ]
     )
     def test_delete_nth_valid_idx(self, nodes, idx):
@@ -193,12 +204,20 @@ class TestSinglyLinkedList:
                                  ([1, 2, 3, 4, 5], -3),
                                  ([1, 2, 3, 4, 5], -4),
                                  ([1, 2, 3, 4, 5], -5),
+                                 ([1, 2, 3, 4, 5], 0),
+                                 ([1, 2, 3, 4, 5], 1),
+                                 ([1, 2, 3, 4, 5], 2),
+                                 ([1, 2, 3, 4, 5], 3),
+                                 ([1, 2, 3, 4, 5], 4),
                              ]
     )
     def test_get_nth_valid_idx(self, nodes, idx):
         llist = LinkedList()
         llist.append_all(nodes)
-        assert llist[idx].data == nodes[len(nodes) - abs(idx)]
+        if idx < 0:
+            assert llist[idx].data == nodes[len(nodes) - abs(idx)]
+        else:
+            assert llist[idx].data == nodes[idx]
 
     @pytest.mark.parametrize("nodes, target",
                              [
@@ -248,10 +267,13 @@ class TestSinglyLinkedList:
     @pytest.mark.parametrize("nodes, idx, data",
                              [
                                  (["j", "o", "s", "h"], 0, "J"),
-                                 (["j", "o", "s", "h"], -1, "H"),
                                  (["j", "o", "s", "h"], 1, "O"),
                                  (["j", "o", "s", "h"], 2, "S"),
                                  (["j", "o", "s", "h"], 3, "H"),
+                                 (["j", "o", "s", "h"], -1, "H"),
+                                 (["j", "o", "s", "h"], -2, "H"),
+                                 (["j", "o", "s", "h"], -3, "H"),
+                                 (["j", "o", "s", "h"], -4, "H"),
                              ]
     )
     def test_update_valid_idx(self, nodes, idx, data):
