@@ -281,3 +281,35 @@ class TestSinglyLinkedList:
         llist.append_all(nodes)
         llist.update(idx, data)
         assert llist[idx].data == data
+
+    @pytest.mark.parametrize("nodes, start, end",
+                             [
+                                 ([1, 2, 3, 4, 5], 1, 1),
+                                 ([1, 2, 3, 4, 5], 1, 2),
+                                 ([1, 2, 3, 4, 5], 1, 3),
+                                 ([1, 2, 3, 4, 5], 1, 4),
+                                 ([1, 2, 3, 4, 5], 1, 5),
+                                 ([1, 2, 3, 4, 5], 2, 2),
+                                 ([1, 2, 3, 4, 5], 2, 3),
+                                 ([1, 2, 3, 4, 5], 2, 4),
+                                 ([1, 2, 3, 4, 5], 2, 5),
+                                 ([1, 2, 3, 4, 5], 3, 3),
+                                 ([1, 2, 3, 4, 5], 3, 4),
+                                 ([1, 2, 3, 4, 5], 3, 5),
+                                 ([1, 2, 3, 4, 5], 4, 4),
+                                 ([1, 2, 3, 4, 5], 4, 5),
+                                 ([1, 2, 3, 4, 5], 5, 5),
+                             ]
+    )
+    #TODO handle slice object in get_item to be able to write a better test
+    def test_reverse_sublist_valid_idx(self, nodes, start, end):
+        llist = LinkedList()
+        llist.append_all(nodes)
+        llist.reverse_sublist(start, end)
+        #sublist = nodes[(start - 1):(end - 1)]
+        #subilst_str = " -> ".join([str(item) for item in sublist])
+        #assert str(llist[(start - 1):(end - 1)]) == subilst_str
+        if start == end:
+            assert str(llist) == " -> ".join([str(node) for node in nodes])
+        else:
+            assert str(llist) != " -> ".join([str(node) for node in nodes])

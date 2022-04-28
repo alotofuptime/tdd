@@ -3,9 +3,9 @@ from typing import Optional, Any, Generator, Iterable
 class LinkedList:
 
     class ListNode:
-        def __init__(self, data):
+        def __init__(self, data, nxt=None):
             self.__data = data
-            self.__next = None
+            self.__next = nxt
 
         def __repr__(self) -> str:
             return f"Node({self.__data})"
@@ -235,4 +235,22 @@ class LinkedList:
             curr = curr.next
             pos += 1
         curr.data = data
+
+    def reverse_sublist(self, start: int, end: int) -> Optional[ListNode]:
+        prev = dummy_head = self.ListNode(-1, self.__head)
+        curr, pos = (prev.next, 1)
+
+        while (curr and pos != start):
+            prev, curr = (curr, curr.next)
+            pos += 1
+        sublist_head = curr
+
+        # 1 -> 2 -> 3 -> 4 -> 5
+        while pos != end:
+            temp = sublist_head.next
+            sublist_head.next = temp.next
+            temp.next = prev.next
+            prev.next = temp
+            pos += 1
+        self.__head = dummy_head.next
 
