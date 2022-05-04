@@ -48,3 +48,10 @@ class TestBinaryTree(object):
     def test_post_order_traversal(self, tree):
         result = tree.post_order(tree.root)
         assert result == "2 - 3 - 1 - "
+
+    def test_level_order_traversal(self, tree):
+        tree.root.left.left = TreeNode(4)
+        tree.root.right.right = TreeNode(5)
+        result = tree.level_order(tree.root)
+        assert result == "1 - 2 - 3 - 4 - 5 - "
+
