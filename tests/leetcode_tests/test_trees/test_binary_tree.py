@@ -18,6 +18,19 @@ class TestBinaryTree(object):
         tree.root.right = TreeNode(3)
         return tree
 
+    @pytest.fixture()
+    def full_tree(self):
+        tree = BinaryTree()
+        tree.root = TreeNode(1)
+        tree.root.left = TreeNode(2)
+        tree.root.right = TreeNode(3)
+        tree.root.left.left = TreeNode(4)
+        tree.root.left.right = TreeNode(5)
+        tree.root.right.left = TreeNode(6)
+        tree.root.right.right = TreeNode(7)
+        return tree
+
+
     def test_empty_tree(self, empty_tree):
         assert empty_tree.root is None
 
@@ -49,9 +62,12 @@ class TestBinaryTree(object):
         result = tree.post_order(tree.root)
         assert result == "2 - 3 - 1 - "
 
-    def test_level_order_traversal(self, tree):
-        tree.root.left.left = TreeNode(4)
-        tree.root.right.right = TreeNode(5)
-        result = tree.level_order(tree.root)
-        assert result == "1 - 2 - 3 - 4 - 5 - "
+    def test_level_order_traversal(self, full_tree):
+        result = full_tree.level_order(full_tree.root)
+        assert result == "1 - 2 - 3 - 4 - 5 - 6 - 7 - "
+
+    def tests_bfs_sum_of_nodes(self, full_tree):
+        expected_output = [1, 5, 9, 13]
+        result = full_tree.bfs_sum(full_tree.root)
+        assert result == expected_output
 

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Optional
+from collections import deque
 from tdd.leetcode.stacks_and_queues.linked_queue import LinkedQueue
 
 @dataclass
@@ -51,6 +52,28 @@ class BinaryTree(object):
                 queue.enqueue(next_node.data.right)
         return trav_str
 
+    def bfs_sum(self, start: TreeNode) -> Optional[list[int]]:
+        if start is None:
+            return []
+
+        queue = deque()
+        queue.append(start)
+
+        sum_of_levels = []
+        sum_of_levels.append(start.value)
+        total = 0
+        while len(queue) > 0:
+            next_node = queue.popleft()
+            if next_node.left:
+                queue.append(next_node.left)
+                total += next_node.left.value
+            if next_node.right:
+                queue.append(next_node.right)
+                total += next_node.right.value
+            if total > 0:
+                sum_of_levels.append(total)
+                total -= total
+        return sum_of_levels
 
 def pre_order_dfs(node: Optional[TreeNode]) -> None:
     if not node:
