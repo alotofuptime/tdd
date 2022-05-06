@@ -52,6 +52,7 @@ class BinaryTree(object):
                 queue.enqueue(next_node.data.right)
         return trav_str
 
+    #TODO FIX BUG NOT PROPERLY GETTING SUM OF EACH LEVEL SHOULD ONLY BE 3 INTEGERS IN SUM OF LEVLS
     def bfs_sum(self, start: TreeNode) -> Optional[list[int]]:
         if start is None:
             return []
@@ -74,6 +75,15 @@ class BinaryTree(object):
                 sum_of_levels.append(total)
                 total -= total
         return sum_of_levels
+
+    def get_height(self, start: Optional[TreeNode]) -> int:
+        if start is None:
+            return -1
+
+        left_height = self.get_height(start.left)
+        right_height = self.get_height(start.right)
+
+        return 1 + max(left_height, right_height)
 
 def pre_order_dfs(node: Optional[TreeNode]) -> None:
     if not node:

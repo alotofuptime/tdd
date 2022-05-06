@@ -66,8 +66,14 @@ class TestBinaryTree(object):
         result = full_tree.level_order(full_tree.root)
         assert result == "1 - 2 - 3 - 4 - 5 - 6 - 7 - "
 
+    # this test is invalid output shold be a list of 3 integers not 2
     def tests_bfs_sum_of_nodes(self, full_tree):
         expected_output = [1, 5, 9, 13]
         result = full_tree.bfs_sum(full_tree.root)
+        assert result == expected_output
+
+    def test_get_height(self, full_tree):
+        expected_output = 2
+        result = full_tree.get_height(full_tree.root)
         assert result == expected_output
 
