@@ -21,7 +21,10 @@ class TestBinarySearchTree:
         assert empty_bst.root is None
 
     def test_bst_insert(self, bst):
-        assert bst.root.data is not None
+        node = bst.root
+        assert node.data is not None
+        assert (node.left.parent is node) and (node.right.parent is node)
+        assert bst.is_bst() is True
 
     @pytest.mark.parametrize("nodes",
         [
@@ -49,3 +52,47 @@ class TestBinarySearchTree:
     def test_bst_search(self, bst):
         assert bst.search(40) == False
         assert bst.search(17) == 17
+
+    @pytest.mark.parametrize("nodes",
+        [
+            [1, 2, 3, 4, 5],
+            [2, 4, 6, 8, 10],
+            ["Josh", "Kianna", "Demitri", "Ruthie", "Carlos", "Joe", "Kate", "Cook"],
+        ]
+    )
+    def test_bst_update_parametrized(self, empty_bst, nodes):
+        tree = empty_bst
+        random.shuffle(nodes)
+        for node in nodes:
+            tree.insert(node)
+
+        assert tree.search(nodes[0]) is nodes[0]
+
+        if isinstance(nodes[0], str):
+            assert tree.update(nodes[0], "JOSH")
+            assert tree.search("JOSH") is "JOSH"
+        else:
+            assert tree.update(nodes[0], 17)
+            assert tree.search(17) == 17
+
+        assert tree.search("absent val") is False
+        assert tree.is_bst() is True
+
+    @pytest.mark.parametrize("nodes",
+        [
+            [1, 2, 3, 4, 5],
+            [2, 4, 6, 8, 10],
+            ["Josh", "Kianna", "Demitri", "Ruthie", "Carlos", "Joe", "Kate", "Cook"],
+        ]
+    )
+    def test_bst_delete_parametrized(self, empty_bst, nodes):
+        tree = empty_bst
+        random.shuffle(nodes)
+        for node in nodes:
+            tree.insert(node)
+
+        tree.delete(nodes[0])
+        assert tree.search(nodes[0]) is False
+        assert tree.is_bst() is True
+
+
